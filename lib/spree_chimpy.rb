@@ -34,11 +34,20 @@ module Spree::Chimpy
   end
 
   def list
-    @list ||= Interface::List.new(Config.list_name,
-                        Config.customer_segment_name,
-                        Config.double_opt_in,
-                        Config.send_welcome_email,
-                        Config.list_id) if configured?
+    if configured?
+      @list ||= Interface::Lists.new(
+        [
+          Interface::List.new(
+            Config.list_name,
+            Config.customer_segment_name,
+            Config.double_opt_in,
+            Config.send_welcome_email,
+            Config.list_id
+          )
+        ]
+      )
+    end
+    @list
   end
 
   def orders
@@ -58,12 +67,7 @@ module Spree::Chimpy
   end
 
   def sync_merge_vars
-    existing   = list.merge_vars + %w(EMAIL)
-    merge_vars = Config.merge_vars.except(*existing)
-
-    merge_vars.each do |tag, method|
-      list.add_merge_var(tag.upcase, method.to_s.humanize.titleize)
-    end
+    list.sync_merge_vars
   end
 
   def merge_vars(model)

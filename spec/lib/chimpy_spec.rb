@@ -4,6 +4,7 @@ describe Spree::Chimpy do
 
   context "enabled" do
     before do
+      Spree::Chimpy::Interface::Lists.stub(new: :lists)
       Spree::Chimpy::Interface::List.stub(new: :list)
       Spree::Chimpy::Interface::Orders.stub(new: :orders)
       config(key: '1234', list_name: 'Members')
@@ -13,7 +14,7 @@ describe Spree::Chimpy do
 
     specify      { should be_configured }
     specify "attributes of Spree::Chimpy when configured" do
-      expect(subject.list).to eq :list
+      expect(subject.list).to eq :lists
       expect(subject.orders).to eq :orders
     end
   end
