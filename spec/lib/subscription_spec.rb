@@ -6,7 +6,7 @@ describe Spree::Chimpy::Subscription do
     let(:interface)    { double(:interface) }
 
     before do
-      Spree::Chimpy::Config.list_name  = 'Members'
+      Spree::Chimpy::Config.lists = [{name: 'Members'}]
       Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email}
       Spree::Chimpy.stub(list: interface)
     end

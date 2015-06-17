@@ -22,7 +22,7 @@ module Spree::Chimpy
   end
 
   def configured?
-    Config.key.present? && (Config.list_name.present? || Config.list_id.present?)
+    Config.key.present? && !Config.lists.empty?
   end
 
   def reset
@@ -36,15 +36,15 @@ module Spree::Chimpy
   def list
     if configured?
       @list ||= Interface::Lists.new(
-        [
+        Config.lists.map do |list|
           Interface::List.new(
-            Config.list_name,
-            Config.customer_segment_name,
-            Config.double_opt_in,
-            Config.send_welcome_email,
-            Config.list_id
+              list[:name],
+              list[:customer_segment_name],
+              list[:double_opt_in],
+              list[:send_welcome_email],
+              list[:list_id],
           )
-        ]
+        end
       )
     end
     @list

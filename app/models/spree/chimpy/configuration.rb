@@ -9,23 +9,7 @@ module Spree::Chimpy
     preference :api_options,           :hash,    default: { timeout: 60 }
     preference :double_opt_in,         :boolean, default: false
     preference :send_welcome_email,    :boolean, default: true
-    preference :lists_raw,             :string,  default: [ {name: 'Members', list_id: nil} ]
-
-    def list_name
-      lists.first[:name]
-    end
-
-    def list_name=(name)
-      lists.first[:name] = name
-    end
-
-    def list_id
-      lists.first[:list_id]
-    end
-
-    def list_id=(list_id)
-      lists.first[:list_id] = list_id
-    end
+    preference :lists_raw,             :array,   default: [] #[ {name: 'Members', list_id: nil} ]
 
     def lists=(lists)
       self.lists_raw = lists
@@ -42,10 +26,9 @@ module Spree::Chimpy
               subscribe_to_list: self.subscribe_to_list,
           customer_segment_name: self.customer_segment_name,
                      merge_vars: self.merge_vars,
-                    api_options: self.api_options,
                   double_opt_in: self.double_opt_in,
              send_welcome_email: self.send_welcome_email,
-        })
+        }).with_indifferent_access
       end
     end
   end

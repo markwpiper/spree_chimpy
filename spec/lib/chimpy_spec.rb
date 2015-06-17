@@ -7,7 +7,7 @@ describe Spree::Chimpy do
       Spree::Chimpy::Interface::Lists.stub(new: :lists)
       Spree::Chimpy::Interface::List.stub(new: :list)
       Spree::Chimpy::Interface::Orders.stub(new: :orders)
-      config(key: '1234', list_name: 'Members')
+      config(key: '1234', lists: [{name: 'Members'}])
     end
 
     subject { described_class }
@@ -37,7 +37,7 @@ describe Spree::Chimpy do
     before do
       Spree::Chimpy::Interface::List.stub(new: interface)
       config(key: '1234',
-             list_name: 'Members',
+             lists: [{name: 'Members'}],
              merge_vars: {'EMAIL' => :email, 'FNAME' => :first_name, 'LNAME' => :last_name})
     end
 
@@ -67,7 +67,7 @@ describe Spree::Chimpy do
   def config(options = {})
     config = Spree::Chimpy::Configuration.new
     config.key        = options[:key]
-    config.list_name  = options[:list_name]
+    config.lists      = options[:lists]
     config.merge_vars = options[:merge_vars]
     config
   end
