@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Subscribers' do
+describe 'Subscribers', type: :request do
 
   context 'with valid subscription' do
     it 'redirects to referer' do

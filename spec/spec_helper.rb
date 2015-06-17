@@ -24,7 +24,8 @@ Capybara.javascript_driver = :poltergeist
 
 Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
 RSpec.configure do |config|
-  config.infer_spec_type_from_file_location!
+  # config.infer_spec_type_from_file_location!
+
   # == URL Helpers
   #
   # Allows access to Spree's routes in specs:

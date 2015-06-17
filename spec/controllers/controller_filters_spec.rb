@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ::Spree::StoreController do
+describe ::Spree::StoreController, type: :controller do
   controller(::Spree::StoreController) do
     def index
       head :ok

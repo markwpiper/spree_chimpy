@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Chimpy::Subscriber do
+describe Spree::Chimpy::Subscriber, type: :model do
   context "without email" do
     it 'is not valid without an email' do
       record = described_class.new(email: nil)

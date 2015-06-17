@@ -75,6 +75,6 @@ describe Spree::Chimpy::Interface::Orders do
   it "removes an order" do
     order = create_order(email: 'foo@example.com')
     api.should_receive(:order_del).with('super-store', order.number).and_return(true)
-    expect(interface.remove(order)).to be_truthy
+    expect(interface.remove(order)).to eq(true)
   end
 end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Order do
+describe Spree::Order, type: :model do
   let(:key) { 'e025fd58df5b66ebd5a709d3fcf6e600-us8' }
   let(:order) { create(:completed_order_with_totals) }
 

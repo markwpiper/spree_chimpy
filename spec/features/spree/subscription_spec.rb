@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-feature 'Chimpy', :js do
+feature 'Chimpy', :js, type: :feature do
   background do
     visit '/signup'
   end

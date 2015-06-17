@@ -8,18 +8,21 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
-    if example.metadata[:js]
+    # if example.metadata[:js]
       DatabaseCleaner.strategy = :truncation
-    else
-      DatabaseCleaner.start
-    end
+    # else
+  end
+  config.before(:each, js: false) do |example|
+    DatabaseCleaner.start
   end
 
   config.after(:each) do |example|
     DatabaseCleaner.clean
+  end
 
-    if example.metadata[:js]
+  config.after(:each, js: true) do |example|
+    # if example.metadata[:js]
       DatabaseCleaner.strategy = :transaction
-    end
+    # end
   end
 end

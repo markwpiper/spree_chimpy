@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::User do
+describe Spree::User, type: :model do
   context "syncing with mail chimp" do
     let(:subscription) { double(:subscription, needs_update?: true) }
 
@@ -24,12 +24,12 @@ describe Spree::User do
   context "defaults" do
     it "subscribed by default" do
       Spree::Chimpy::Config.subscribed_by_default = true
-      expect(described_class.new.subscribed).to be_truthy
+      expect(described_class.new.subscribed).to eq(true)
     end
 
     it "doesnt subscribe by default" do
       Spree::Chimpy::Config.subscribed_by_default = false
-      expect(described_class.new.subscribed).to be_falsey
+      expect(described_class.new.subscribed).to eq(false)
     end
   end
 end
