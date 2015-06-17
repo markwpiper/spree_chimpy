@@ -3,6 +3,7 @@ if Spree.user_class
 
     after_create  :subscribe
     after_destroy :unsubscribe
+    around_update :resubscribe
     after_initialize :assign_subscription_default
 
     delegate :subscribe, :resubscribe, :unsubscribe, to: :subscription
