@@ -82,6 +82,7 @@ module Spree::Chimpy
 
       delegate_each :subscribe, to: :lists
       delegate_each :unsubscribe, to: :lists
+      delegate_each :update_subscriber, to: :lists
       delegate_each :add_merge_var, to: :lists
       delegate_each :create_segment, to: :lists
 

@@ -31,6 +31,20 @@ module Spree::Chimpy
         end
       end
 
+      def update_subscriber(email, merge_vars = {}, options = {})
+        log "Updating subscriber #{email} for list #{@list_name}"
+
+        begin
+          api_call.update_member(list_id, { email: email }, merge_vars)
+        rescue Mailchimp::ListInvalidImportError,
+            Mailchimp::ValidationError,
+            Mailchimp::EmailNotExistsError,
+            Mailchimp::ListNotSubscribedError => ex
+          log "Subscriber #{email} rejected for reason: [#{ex.message}]"
+          {errors: [{email: email, message: ex.message, code: ex.inspect}]}.with_indifferent_access
+        end
+      end
+
       def unsubscribe(email)
         log "Unsubscribing #{email} from #{@list_name}"
 

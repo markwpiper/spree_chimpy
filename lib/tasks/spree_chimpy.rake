@@ -46,6 +46,20 @@ namespace :spree_chimpy do
         end
         puts "segmented #{response["success"] || 0} out of #{emails.size}"
       end
+      puts "done"
+    end
+
+    desc 'sync merge-vars for all subscribed users'
+    task sync: :environment do
+      emails = Spree.user_class.find_each do |user|
+        responses = Spree::Chimpy.list.update_subscriber(user.email, Spree::Chimpy.merge_vars(user), customer: true)
+        responses.each do |response|
+          response["errors"].try :each do |error|
+            puts "Error #{error["code"]} with email: #{error["email"]} \n msg: #{error["msg"]}"
+          end
+        end
+      end
+      puts "done"
     end
   end
 

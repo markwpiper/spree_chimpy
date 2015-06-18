@@ -23,8 +23,10 @@ module Spree::Chimpy
 
       if unsubscribing?
         defer(:unsubscribe)
-      elsif subscribing? || merge_vars_changed?
+      elsif subscribing?
         defer(:subscribe)
+      elsif merge_vars_changed?
+        defer(:update_subscriber)
       end
     end
 
