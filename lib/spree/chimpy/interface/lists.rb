@@ -1,138 +1,9 @@
 module Spree::Chimpy
   module Interface
     class Lists
+
       delegate :log, to: Spree::Chimpy
 
-      # Provides a +delegate+ class method to easily expose contained objects'
-      # public methods as your own.
-      #
-      # The macro receives one or more method names (specified as symbols or
-      # strings) and the name of the target object via the <tt>:to</tt> option
-      # (also a symbol or string).
-      #
-      # Delegation is particularly useful with Active Record associations:
-      #
-      #   class Greeter < ActiveRecord::Base
-      #     def hello
-      #       'hello'
-      #     end
-      #
-      #     def goodbye
-      #       'goodbye'
-      #     end
-      #   end
-      #
-      #   class Foo < ActiveRecord::Base
-      #     belongs_to :greeter
-      #     delegate :hello, to: :greeter
-      #   end
-      #
-      #   Foo.new.hello   # => "hello"
-      #   Foo.new.goodbye # => NoMethodError: undefined method `goodbye' for #<Foo:0x1af30c>
-      #
-      # Multiple delegates to the same target are allowed:
-      #
-      #   class Foo < ActiveRecord::Base
-      #     belongs_to :greeter
-      #     delegate :hello, :goodbye, to: :greeter
-      #   end
-      #
-      #   Foo.new.goodbye # => "goodbye"
-      #
-      # Methods can be delegated to instance variables, class variables, or constants
-      # by providing them as a symbols:
-      #
-      #   class Foo
-      #     CONSTANT_ARRAY = [0,1,2,3]
-      #     @@class_array  = [4,5,6,7]
-      #
-      #     def initialize
-      #       @instance_array = [8,9,10,11]
-      #     end
-      #     delegate :sum, to: :CONSTANT_ARRAY
-      #     delegate :min, to: :@@class_array
-      #     delegate :max, to: :@instance_array
-      #   end
-      #
-      #   Foo.new.sum # => 6
-      #   Foo.new.min # => 4
-      #   Foo.new.max # => 11
-      #
-      # It's also possible to delegate a method to the class by using +:class+:
-      #
-      #   class Foo
-      #     def self.hello
-      #       "world"
-      #     end
-      #
-      #     delegate :hello, to: :class
-      #   end
-      #
-      #   Foo.new.hello # => "world"
-      #
-      # Delegates can optionally be prefixed using the <tt>:prefix</tt> option. If the value
-      # is <tt>true</tt>, the delegate methods are prefixed with the name of the object being
-      # delegated to.
-      #
-      #   Person = Struct.new(:name, :address)
-      #
-      #   class Invoice < Struct.new(:client)
-      #     delegate :name, :address, to: :client, prefix: true
-      #   end
-      #
-      #   john_doe = Person.new('John Doe', 'Vimmersvej 13')
-      #   invoice = Invoice.new(john_doe)
-      #   invoice.client_name    # => "John Doe"
-      #   invoice.client_address # => "Vimmersvej 13"
-      #
-      # It is also possible to supply a custom prefix.
-      #
-      #   class Invoice < Struct.new(:client)
-      #     delegate :name, :address, to: :client, prefix: :customer
-      #   end
-      #
-      #   invoice = Invoice.new(john_doe)
-      #   invoice.customer_name    # => 'John Doe'
-      #   invoice.customer_address # => 'Vimmersvej 13'
-      #
-      # If the target is +nil+ and does not respond to the delegated method a
-      # +NoMethodError+ is raised, as with any other value. Sometimes, however, it
-      # makes sense to be robust to that situation and that is the purpose of the
-      # <tt>:allow_nil</tt> option: If the target is not +nil+, or it is and
-      # responds to the method, everything works as usual. But if it is +nil+ and
-      # does not respond to the delegated method, +nil+ is returned.
-      #
-      #   class User < ActiveRecord::Base
-      #     has_one :profile
-      #     delegate :age, to: :profile
-      #   end
-      #
-      #   User.new.age # raises NoMethodError: undefined method `age'
-      #
-      # But if not having a profile yet is fine and should not be an error
-      # condition:
-      #
-      #   class User < ActiveRecord::Base
-      #     has_one :profile
-      #     delegate :age, to: :profile, allow_nil: true
-      #   end
-      #
-      #   User.new.age # nil
-      #
-      # Note that if the target is not +nil+ then the call is attempted regardless of the
-      # <tt>:allow_nil</tt> option, and thus an exception is still raised if said object
-      # does not respond to the method:
-      #
-      #   class Foo
-      #     def initialize(bar)
-      #       @bar = bar
-      #     end
-      #
-      #     delegate :name, to: :@bar, allow_nil: true
-      #   end
-      #
-      #   Foo.new("Bar").name # raises NoMethodError: undefined method `name'
-      #
       def self.delegate_each(*methods)
         options = methods.pop
         unless options.is_a?(Hash) && to = options[:to]
@@ -146,11 +17,11 @@ module Spree::Chimpy
         end
 
         method_prefix = \
-      if prefix
-                                "#{prefix == true ? to : prefix}_"
-      else
-        ''
-      end
+            if prefix
+              "#{prefix == true ? to : prefix}_"
+            else
+              ''
+            end
 
         file, line = caller.first.split(':', 2)
         line = line.to_i
@@ -173,7 +44,7 @@ module Spree::Chimpy
           if allow_nil
             module_eval(<<-EOS, file, line - 3)
           def #{method_prefix}#{method}(#{definition})        # def customer_name(*args, &block)
-            #{to}.each do |_|                                 #   client.each do |_|
+            #{to}.map do |_|                                  #   client.each do |_|
               if !_.nil? || nil.respond_to?(:#{method})       #     if !_.nil? || nil.respond_to?(:name)
                 _.#{method}(#{definition})                    #       _.name(*args, &block)
               end                                             #     end
@@ -185,7 +56,7 @@ module Spree::Chimpy
 
             module_eval(<<-EOS, file, line - 2)
           def #{method_prefix}#{method}(#{definition})                                              # def customer_name(*args, &block)
-            #{to}.each do |_|                                                                       #   client.each do |_|
+            #{to}.map do |_|                                                                        #   client.each do |_|
               begin                                                                                 #     begin
                 _.#{method}(#{definition})                                                          #       _.name(*args, &block)
               rescue NoMethodError => e                                                             #     rescue NoMethodError => e
@@ -225,11 +96,48 @@ module Spree::Chimpy
         end
       end
 
+      def ensure_lists
+        lists.each do |list|
+          if list.list_name.present?
+            Rails.logger.error("spree_chimpy: hmm.. a list named `#{list.name}` was not found. Please add it and reboot the app") unless list_exists?(list)
+          end
+          if list.list_id.present?
+            Rails.logger.error("spree_chimpy: hmm.. a list with ID `#{list.list_id}` was not found. Please add it and reboot the app") unless list_exists?(list)
+          end
+        end
+      end
+
+      def ensure_segments
+        lists.each do |list|
+          if list_exists?(list) && !segment_exists?(list)
+            create_segment(list)
+            Rails.logger.error("spree_chimpy: hmm.. a static segment named `#{list.customer_segment_name}` was not found. Creating it now")
+          end
+        end
+      end
+
+      def list_exists?(list)
+        list.list_id
+      end
+
+      def segment_exists?(list)
+        list.segment_id
+      end
+
+      def create_segment(list)
+        list.create_segment
+      end
+
+      def segment(emails = [])
+        lists.map do |list|
+          list.segment(emails)
+        end
+      end
+
       # def info(email_or_id)
       # def merge_vars
       # def find_list_id(name)
       # def list_id
-      # def segment(emails = [])
       # def find_segment_id
       # def segment_id
     end

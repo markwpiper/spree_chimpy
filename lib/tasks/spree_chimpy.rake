@@ -35,20 +35,21 @@ namespace :spree_chimpy do
   namespace :users do
     desc 'segment all subscribed users'
     task segment: :environment do
-      if Spree::Chimpy.segment_exists?
-        emails = Spree.user_class.where(subscribed: true).pluck(:email)
-        puts "Segmenting all subscribed users"
-        response = Spree::Chimpy.list.segment(emails)
+      Spree::Chimpy.ensure_segment
+
+      emails = Spree.user_class.where(subscribed: true).pluck(:email)
+      puts "Segmenting all subscribed users"
+      responses = Spree::Chimpy.list.segment(emails)
+      responses.each do |response|
         response["errors"].try :each do |error|
           puts "Error #{error["code"]} with email: #{error["email"]} \n msg: #{error["msg"]}"
         end
         puts "segmented #{response["success"] || 0} out of #{emails.size}"
-        puts "done"
       end
     end
   end
 
-  desc 'sync all users with mailchimp'
+  desc 'sync all users subscribed state from mailchimp'
   task sync: :environment do
     emails = Spree.user_class.pluck(:email)
     puts "Syncing all users"

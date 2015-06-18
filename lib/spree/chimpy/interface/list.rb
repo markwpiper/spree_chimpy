@@ -3,10 +3,12 @@ module Spree::Chimpy
     class List
       delegate :log, to: Spree::Chimpy
 
-      def initialize(list_name, segment_name, double_opt_in, send_welcome_email, list_id)
+      attr_accessor :list_name, :list_id, :customer_segment_name, :double_opt_in, :send_welcome_email
+
+      def initialize(list_name, customer_segment_name, double_opt_in, send_welcome_email, list_id)
         @api           = Spree::Chimpy.api
         @list_id       = list_id
-        @segment_name  = segment_name
+        @customer_segment_name  = customer_segment_name
         @double_opt_in = double_opt_in
         @send_welcome_email = send_welcome_email
         @list_name     = list_name
@@ -73,21 +75,23 @@ module Spree::Chimpy
       end
 
       def segment(emails = [])
-        log "Adding #{emails} to segment #{@segment_name} [#{segment_id}] in list [#{list_id}]"
+        log "Adding #{emails} to segment #{@customer_segment_name} [#{segment_id}] in list [#{list_id}]"
+
+        return {} if emails.empty?
 
         params = emails.map { |email| { email: email } }
         response = api_call.static_segment_members_add(list_id, segment_id.to_i, params)
       end
 
       def create_segment
-        log "Creating segment #{@segment_name}"
+        log "Creating segment #{@customer_segment_name}"
 
-        @segment_id = api_call.static_segment_add(list_id, @segment_name)
+        @segment_id = api_call.static_segment_add(list_id, @customer_segment_name)
       end
 
       def find_segment_id
         segments = api_call.static_segments(list_id)
-        segment  = segments.detect {|segment| segment['name'].downcase == @segment_name.downcase }
+        segment  = segments.detect {|segment| segment['name'].downcase == @customer_segment_name.downcase }
 
         segment['id'] if segment
       end

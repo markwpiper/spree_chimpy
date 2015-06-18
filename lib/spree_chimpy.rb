@@ -54,18 +54,6 @@ module Spree::Chimpy
     @orders ||= Interface::Orders.new if configured?
   end
 
-  def list_exists?
-    list.list_id
-  end
-
-  def segment_exists?
-    list.segment_id
-  end
-
-  def create_segment
-    list.create_segment
-  end
-
   def sync_merge_vars
     list.sync_merge_vars
   end
@@ -83,19 +71,11 @@ module Spree::Chimpy
   end
 
   def ensure_list
-    if Config.list_name.present?
-      Rails.logger.error("spree_chimpy: hmm.. a list named `#{Config.list_name}` was not found. Please add it and reboot the app") unless list_exists?
-    end
-    if Config.list_id.present?
-      Rails.logger.error("spree_chimpy: hmm.. a list with ID `#{Config.list_id}` was not found. Please add it and reboot the app") unless list_exists?
-    end
+    list.ensure_lists
   end
 
   def ensure_segment
-    if list_exists? && !segment_exists?
-      create_segment
-      Rails.logger.error("spree_chimpy: hmm.. a static segment named `#{Config.customer_segment_name}` was not found. Creating it now")
-    end
+    list.ensure_segments
   end
 
   def handle_event(event, payload = {})
