@@ -10,7 +10,7 @@ module Spree::Chimpy
     preference :double_opt_in,         :boolean, default: false
     preference :send_welcome_email,    :boolean, default: true
     preference :lists_raw,             :array,   default: [] #[ {name: 'Members', list_id: nil} ]
-    preference :enabled,               :boolean, default: false
+    preference :enabled,               :boolean, default: true
 
     def lists=(lists)
       self.lists_raw = lists

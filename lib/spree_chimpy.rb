@@ -22,7 +22,7 @@ module Spree::Chimpy
   end
 
   def configured?
-    Config.key.present? && !Config.lists.empty?
+    Config.enabled && Config.key.present? && !Config.lists.empty?
   end
 
   def reset
