@@ -9,7 +9,9 @@ module Spree::Chimpy
   extend self
 
   def config(&block)
-    yield(Spree::Chimpy::Config)
+    yield(Spree::Chimpy::Config) if block_given?
+
+    Spree::Chimpy::Config
   end
 
   def enqueue(event, object)
@@ -22,7 +24,7 @@ module Spree::Chimpy
   end
 
   def configured?
-    Config.enabled && Config.key.present? && !Config.lists.empty?
+    config.enabled && config.key.present? && !config.lists.empty?
   end
 
   def reset
@@ -30,7 +32,7 @@ module Spree::Chimpy
   end
 
   def api
-    @api = Mailchimp::API.new(Config.key, Config.api_options) if configured?
+    @api = Mailchimp::API.new(config.key, config.api_options) if configured?
   end
 
   def list
