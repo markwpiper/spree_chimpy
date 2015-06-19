@@ -8,7 +8,7 @@ describe Spree::Chimpy::Subscription do
     before do
       Spree::Chimpy::Config.stub(key: 'foo-bar-baz')
       Spree::Chimpy::Config.lists = [{name: 'Members'}]
-      Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email}
+      Spree::Chimpy::Config.merge_vars = [{name: 'EMAIL', accessor: :email}]
       Spree::Chimpy.stub(list: interface)
     end
 
@@ -17,7 +17,11 @@ describe Spree::Chimpy::Subscription do
       let(:subscription) { described_class.new(user) }
 
       before do
-        Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email, 'SIZE' => :size, 'HEIGHT' => :height}
+        Spree::Chimpy::Config.merge_vars = [
+            {name: 'EMAIL', accessor: :email},
+            {name: 'SIZE', accessor: :size},
+            {name: 'HEIGHT', accessor: :height}
+        ]
 
         def user.size
           '10'
@@ -123,7 +127,7 @@ describe Spree::Chimpy::Subscription do
           let(:user) { create(:user, subscribed: true, size: 10, height: 20) }
 
           before do
-            Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email, 'SIZE' => :size, 'HEIGHT' => :height}
+            Spree::Chimpy::Config.merge_vars = [{name: 'EMAIL', accessor: :email}, {name: 'SIZE', accessor: :size}, {name: 'HEIGHT', accessor: :height}]
 
             Spree::User.class_eval do
               attr_accessor :size, :height

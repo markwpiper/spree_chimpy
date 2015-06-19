@@ -24,7 +24,7 @@ module Spree::Chimpy
   end
 
   def configured?
-    config.enabled && config.key.present? && !config.lists.empty?
+    config.enabled && config.key.present?
   end
 
   def reset
@@ -61,10 +61,11 @@ module Spree::Chimpy
   end
 
   def merge_vars(model)
-    attributes = Config.merge_vars.except('EMAIL')
+    attributes = Config.merge_vars.map(&:with_indifferent_access).reject{ |mv| mv[:name] == 'EMAIL' }
 
-    array = attributes.map do |tag, method|
-      value = model.send(method) if model.methods.include?(method)
+    array = attributes.map do |merge_var|
+      tag = merge_var[:name]
+      value = model.send(merge_var[:accessor]) if model.methods.include?(merge_var[:accessor])
 
       [tag, value.to_s]
     end

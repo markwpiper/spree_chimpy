@@ -89,10 +89,13 @@ module Spree::Chimpy
       def sync_merge_vars
         lists.each do |list|
           existing   = list.merge_vars + %w(EMAIL)
-          merge_vars = Config.merge_vars.except(*existing)
+          merge_vars = Config.merge_vars.map(&:with_indifferent_access).reject { |mv| existing.member?(mv[:name]) }
 
-          merge_vars.each do |tag, method|
-            list.add_merge_var(tag.upcase, method.to_s.humanize.titleize)
+          merge_vars.each do |mv|
+            list.add_merge_var(
+                mv[:name].to_s.upcase,
+                (mv[:title] || mv[:accessor]).to_s.humanize.titleize,
+                mv[:options] || {})
           end
         end
       end

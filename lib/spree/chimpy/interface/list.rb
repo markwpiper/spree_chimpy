@@ -73,10 +73,10 @@ module Spree::Chimpy
         api_call.merge_vars([list_id])['data'].first['merge_vars'].map {|record| record['tag']}
       end
 
-      def add_merge_var(tag, description)
+      def add_merge_var(tag, description, options)
         log "Adding merge var #{tag} to #{@list_name}"
 
-        api_call.merge_var_add(list_id, tag, description)
+        api_call.merge_var_add(list_id, tag, description, options)
       end
 
       def find_list_id(name)

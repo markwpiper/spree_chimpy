@@ -16,7 +16,7 @@ module Spree::Chimpy
       'Customers'
     end
     cattr_accessor :merge_vars do
-      { 'EMAIL' => :email }
+      [{ name: 'EMAIL', accessor: :email, options: {field_type: :string} }]
     end
     cattr_accessor :api_options do
       { timeout: 60 }

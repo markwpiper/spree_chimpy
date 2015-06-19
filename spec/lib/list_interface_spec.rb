@@ -8,6 +8,7 @@ describe Spree::Chimpy::Interface::List do
 
   before do
     Spree::Chimpy::Config.key = key
+    Spree::Chimpy::Config.enabled = true
     Mailchimp::API.should_receive(:new).with(key, { timeout: 60 }).and_return(api)
     lists.stub(:list).and_return(lists)
     api.stub(:lists).and_return(lists)
@@ -86,7 +87,7 @@ describe Spree::Chimpy::Interface::List do
   end
 
   it "adds a merge var" do
-    expect(lists).to receive(:merge_var_add).with("a3d3", "SIZE", "Your Size")
-    interface.add_merge_var('SIZE', 'Your Size')
+    expect(lists).to receive(:merge_var_add).with("a3d3", "SIZE", "Your Size", field_type: 'text')
+    interface.add_merge_var('SIZE', 'Your Size', {field_type: 'text'})
   end
 end

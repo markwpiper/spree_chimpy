@@ -39,9 +39,10 @@ module Spree::Chimpy
     end
 
     def merge_vars_changed?
-      Config.merge_vars.values.any? do |attr|
-        name = "#{attr}_changed?".to_sym
-        !@model.methods.include?(name) || @model.send(name)
+      Config.merge_vars.map(&:with_indifferent_access).any? do |mv|
+        accessor = mv[:accessor]
+        change_accessor = "#{accessor}_changed?".to_sym
+        !@model.methods.include?(change_accessor) || @model.send(change_accessor)
       end
     end
 
