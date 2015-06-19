@@ -6,6 +6,7 @@ describe Spree::Chimpy::Subscription do
     let(:interface)    { double(:interface) }
 
     before do
+      Spree::Chimpy::Config.stub(key: 'foo-bar-baz')
       Spree::Chimpy::Config.lists = [{name: 'Members'}]
       Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email}
       Spree::Chimpy.stub(list: interface)
@@ -132,7 +133,11 @@ describe Spree::Chimpy::Subscription do
           it "subscribes the user once again" do
             user.size += 5
             user.height += 10
-            interface.should_receive(:subscribe).with(user.email, {"SIZE"=> user.size.to_s, "HEIGHT"=> user.height.to_s}, {:customer=>true})
+            expect(subscription).to be_merge_vars_changed
+            expect(subscription).to be_configured
+
+            interface.should_receive(:update_subscriber).with(user.email, {"SIZE"=> user.size.to_s, "HEIGHT"=> user.height.to_s}, {:customer=>true})
+
             subscription.resubscribe
           end
         end

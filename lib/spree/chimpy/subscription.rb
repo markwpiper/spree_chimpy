@@ -30,11 +30,6 @@ module Spree::Chimpy
       end
     end
 
-  private
-    def defer(event)
-      enqueue(event, @model)
-    end
-
     def subscribing?
       @model.subscribed && (@model.subscribed_changed? || @model.id_changed? || @model.new_record?)
     end
@@ -48,6 +43,11 @@ module Spree::Chimpy
         name = "#{attr}_changed?".to_sym
         !@model.methods.include?(name) || @model.send(name)
       end
+    end
+
+  private
+    def defer(event)
+      enqueue(event, @model)
     end
   end
 end
