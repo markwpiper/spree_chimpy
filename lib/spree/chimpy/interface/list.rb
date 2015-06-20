@@ -79,13 +79,42 @@ module Spree::Chimpy
         api_call.merge_var_add(list_id, tag, description, options)
       end
 
+      def sync_merge_vars
+        existing   = merge_vars + %w(EMAIL)
+        merge_vars = Config.merge_vars.map(&:with_indifferent_access).reject { |mv| existing.member?(mv[:name]) }
+
+        merge_vars.each do |mv|
+          add_merge_var(
+              mv[:name].to_s.upcase,
+              (mv[:title] || mv[:accessor]).to_s.humanize.titleize,
+              mv[:options] || {}
+          )
+        end
+      end
+
       def find_list_id(name)
         list = @api.lists.list["data"].detect { |r| r["name"] == name }
         list["id"] if list
       end
 
       def list_id
-        @list_id ||= find_list_id(@list_name)
+        @list_id ||= find_list_id(list_name)
+      end
+
+      def ensure_list
+        if list_name.present?
+          Rails.logger.error("spree_chimpy: hmm.. a list named `#{list_name}` was not found. Please add it and reboot the app") unless list_exists?
+        end
+        if list_id.present?
+          Rails.logger.error("spree_chimpy: hmm.. a list with ID `#{list_id}` was not found. Please add it and reboot the app") unless list_exists?
+        end
+      end
+
+      def ensure_segment
+        if list_exists? && !segment_exists?
+          create_segment
+          Rails.logger.error("spree_chimpy: hmm.. a static segment named `#{customer_segment_name}` was not found for list #{list_name}. Creating it now")
+        end
       end
 
       def segment(emails = [])
@@ -112,6 +141,14 @@ module Spree::Chimpy
 
       def segment_id
         @segment_id ||= find_segment_id
+      end
+
+      def list_exists?
+        list_id.present?
+      end
+
+      def segment_exists?
+        segment_id.present?
       end
     end
   end

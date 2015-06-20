@@ -85,65 +85,10 @@ module Spree::Chimpy
       delegate_each :update_subscriber, to: :lists
       delegate_each :add_merge_var, to: :lists
       delegate_each :create_segment, to: :lists
-
-      def sync_merge_vars
-        lists.each do |list|
-          existing   = list.merge_vars + %w(EMAIL)
-          merge_vars = Config.merge_vars.map(&:with_indifferent_access).reject { |mv| existing.member?(mv[:name]) }
-
-          merge_vars.each do |mv|
-            list.add_merge_var(
-                mv[:name].to_s.upcase,
-                (mv[:title] || mv[:accessor]).to_s.humanize.titleize,
-                mv[:options] || {})
-          end
-        end
-      end
-
-      def ensure_lists
-        lists.each do |list|
-          if list.list_name.present?
-            Rails.logger.error("spree_chimpy: hmm.. a list named `#{list.name}` was not found. Please add it and reboot the app") unless list_exists?(list)
-          end
-          if list.list_id.present?
-            Rails.logger.error("spree_chimpy: hmm.. a list with ID `#{list.list_id}` was not found. Please add it and reboot the app") unless list_exists?(list)
-          end
-        end
-      end
-
-      def ensure_segments
-        lists.each do |list|
-          if list_exists?(list) && !segment_exists?(list)
-            create_segment(list)
-            Rails.logger.error("spree_chimpy: hmm.. a static segment named `#{list.customer_segment_name}` was not found. Creating it now")
-          end
-        end
-      end
-
-      def list_exists?(list)
-        list.list_id
-      end
-
-      def segment_exists?(list)
-        list.segment_id
-      end
-
-      def create_segment(list)
-        list.create_segment
-      end
-
-      def segment(emails = [])
-        lists.map do |list|
-          list.segment(emails)
-        end
-      end
-
-      # def info(email_or_id)
-      # def merge_vars
-      # def find_list_id(name)
-      # def list_id
-      # def find_segment_id
-      # def segment_id
+      delegate_each :sync_merge_vars, to: :lists
+      delegate_each :segment, to: :lists
+      delegate_each :ensure_list, to: :lists
+      delegate_each :ensure_segment, to: :lists
     end
   end
 end

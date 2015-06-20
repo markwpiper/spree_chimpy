@@ -74,11 +74,11 @@ module Spree::Chimpy
   end
 
   def ensure_list
-    list.ensure_lists
+    list.ensure_list
   end
 
   def ensure_segment
-    list.ensure_segments
+    list.ensure_segment
   end
 
   def handle_event(event, payload = {})

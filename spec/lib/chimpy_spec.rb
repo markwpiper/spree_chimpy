@@ -40,34 +40,13 @@ describe Spree::Chimpy do
              lists: [{name: 'Members'}],
              merge_vars: [
                  {name: 'EMAIL', accessor: :email},
-                 {name: 'FNAME', accessor: :first_name},
-                 {name: 'LNAME', accessor: :last_name, options: {field_type: :text}},
-                 {name: 'LAST_ORDERED', accessor: :last_ordered_at, title: 'Last Ordered', options: {field_type: :date}},
+                 {name: 'FNAME', accessor: :first_name}
              ]
       )
     end
 
-    it "adds var for each" do
-      interface.should_receive(:merge_vars).and_return([])
-      interface.should_receive(:add_merge_var).with('FNAME', 'First Name', {})
-      interface.should_receive(:add_merge_var).with('LNAME', 'Last Name', {'field_type' => :text})
-      interface.should_receive(:add_merge_var).with('LAST_ORDERED', 'Last Ordered', {'field_type' => :date})
-
-      subject.sync_merge_vars
-    end
-
-    it "skips vars that exist" do
-      interface.should_receive(:merge_vars).and_return(%w(EMAIL FNAME))
-      interface.should_receive(:add_merge_var).with('LNAME', 'Last Name', {'field_type' => :text})
-      interface.should_receive(:add_merge_var).with('LAST_ORDERED', 'Last Ordered', {'field_type' => :date})
-
-      subject.sync_merge_vars
-    end
-
-    it "doesnt sync if all exist" do
-      interface.should_receive(:merge_vars).and_return(%w(EMAIL FNAME LNAME LAST_ORDERED))
-      interface.should_not_receive(:add_merge_var)
-
+    it "delegates to lists.sync_merge_vars" do
+      interface.should_receive(:sync_merge_vars).with(no_args)
       subject.sync_merge_vars
     end
   end
