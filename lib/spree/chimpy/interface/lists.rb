@@ -89,6 +89,12 @@ module Spree::Chimpy
       delegate_each :segment, to: :lists
       delegate_each :ensure_list, to: :lists
       delegate_each :ensure_segment, to: :lists
+
+      def info(email_or_id)
+        ## return info from the first list which returns non-nil result
+        ## TODO: only call subsequent lists if first list returns nil/empty
+        lists.map { |list| list.info(email_or_id) }.reject(&:nil?).reject(&:empty?).first
+      end
     end
   end
 end
