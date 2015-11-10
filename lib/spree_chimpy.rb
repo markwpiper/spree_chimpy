@@ -62,12 +62,12 @@ module Spree::Chimpy
 
   def merge_vars(model)
     attributes = Config.merge_vars.map(&:with_indifferent_access).reject{ |mv| mv[:name] == 'EMAIL' }
+    special_keys = ['GROUPINGS', 'MC_LOCATION', 'MC_NOTES']
 
     array = attributes.map do |merge_var|
       tag = merge_var[:name]
       value = model.send(merge_var[:accessor]) if model.methods.include?(merge_var[:accessor])
-
-      [tag, value.to_s]
+      [tag, special_keys.include?(tag.upcase) ? value : value.to_s]
     end
 
     Hash[array]
