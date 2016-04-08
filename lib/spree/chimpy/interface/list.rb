@@ -20,6 +20,7 @@ module Spree::Chimpy
 
       def subscribe(email, merge_vars = {}, options = {})
         log "Subscribing #{email} to #{@list_name}"
+        ensure_list
 
         begin
           api_call.subscribe(list_id, { email: email }, merge_vars, 'html', @double_opt_in, true, true, @send_welcome_email)
@@ -33,6 +34,7 @@ module Spree::Chimpy
 
       def update_subscriber(email, merge_vars = {}, options = {})
         log "Updating subscriber #{email} for list #{@list_name}"
+        ensure_list
 
         begin
           api_call.update_member(list_id, { email: email }, merge_vars)
@@ -47,6 +49,7 @@ module Spree::Chimpy
 
       def unsubscribe(email)
         log "Unsubscribing #{email} from #{@list_name}"
+        ensure_list
 
         begin
           api_call.unsubscribe(list_id, { email: email })
@@ -57,6 +60,7 @@ module Spree::Chimpy
 
       def info(email_or_id)
         log "Checking member info for #{email_or_id} from #{@list_name}"
+        ensure_list
 
         #maximum of 50 emails allowed to be passed in
         response = api_call.member_info(list_id, [{email: email_or_id}])
@@ -69,12 +73,14 @@ module Spree::Chimpy
 
       def merge_vars
         log "Finding merge vars for #{@list_name}"
+        ensure_list
 
         api_call.merge_vars([list_id])['data'].first['merge_vars'].map {|record| record['tag']}
       end
 
       def add_merge_var(tag, description, options)
         log "Adding merge var #{tag} to #{@list_name}"
+        ensure_list
 
         api_call.merge_var_add(list_id, tag, description, options)
       end
@@ -119,6 +125,8 @@ module Spree::Chimpy
 
       def segment(emails = [])
         log "Adding #{emails} to segment #{@customer_segment_name} [#{segment_id}] in list [#{list_id}]"
+        ensure_list
+        ensure_segment
 
         return {} if emails.empty?
 
@@ -128,11 +136,13 @@ module Spree::Chimpy
 
       def create_segment
         log "Creating segment #{@customer_segment_name}"
+        ensure_list
 
         @segment_id = api_call.static_segment_add(list_id, @customer_segment_name)
       end
 
       def find_segment_id
+        ensure_list
         segments = api_call.static_segments(list_id)
         segment  = segments.detect {|segment| segment['name'].downcase == @customer_segment_name.downcase }
 
